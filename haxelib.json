@@ -1,0 +1,7 @@
+{
+  "name": "tink_remoting",
+  "classPath": "./src",
+  "dependencies": {
+      "tink_http": "*"
+  }
+}
