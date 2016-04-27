@@ -2,7 +2,6 @@ package;
 
 import tink.remoting.Context;
 import tink.remoting.Connection;
-import tink.remoting.Client;
 import tink.http.Request;
 
 import buddy.*;
