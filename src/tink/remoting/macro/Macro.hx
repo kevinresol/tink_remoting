@@ -64,13 +64,6 @@ class Macro {
 			}
 		}
 	}
-	
-	static function extractOutcome(type:Type) {
-		switch Context.follow(type) {
-			case TEnum(_, [s, f]): return new Pair(s, f);
-			default: throw 'assert';
-		}
-	}
 }
 
 typedef Processor = {
