@@ -36,12 +36,12 @@ class Context {
 		});
 	}
 	
-	public function process(requestData:String) {
+	public function process(requestData:String):Surprise<String, Error> {
 		var u = new Unserializer(requestData);
 		var path = u.unserialize();
 		var args = u.unserialize();
 		return call(path, args) >>
-			function(result:Dynamic) return Future.sync("hxr" + Serializer.run(result));
+			function(result:Dynamic) return "hxr" + Serializer.run(result);
 	}
 	
 	function call(path:String, params:Array<Dynamic>):Surprise<Dynamic, Error> {
