@@ -29,8 +29,20 @@ class Macro {
 		// add the cnx field
 		fields.push({
 			name: 'cnx',
-			kind: FieldType.FVar(macro:tink.remoting.Connection, macro tink.remoting.Client.connection),
+			kind: FieldType.FProp('get', 'never', macro:tink.remoting.Connection, null),
 			pos: Context.currentPos(),
+		});
+		
+		// add the get_cnx field
+		fields.push({
+			name: 'get_cnx',
+			kind: FFun({
+				args: [],
+				expr: macro return tink.remoting.Client.connection,
+				ret: null,
+			}),
+			pos: Context.currentPos(),
+			access: [AInline],
 		});
 		
 		return fields;

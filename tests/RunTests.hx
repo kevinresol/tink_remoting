@@ -1,14 +1,13 @@
 package;
 
-import haxe.unit.TestRunner;
+import buddy.*;
 
-class RunTests {
-	
-	static function main() {
-		var r = new TestRunner();
-		r.add(new TestConnection());
-		if(r.run()) {
-			#if sys Sys.exit(500); #end
-		}
-	}
-}
+class RunTests implements Buddy<[
+	#if tink_remoting_client
+		TestClient,
+	#end
+		
+	#if tink_remoting_server
+		TestConnection,
+	#end
+]>{}

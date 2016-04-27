@@ -1,0 +1,5 @@
+-main Server
+-neko bin/index.n
+-cp tests
+-lib tink_remoting
+-D tink_remoting_server

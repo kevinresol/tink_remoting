@@ -4,6 +4,7 @@ import haxe.Unserializer;
 import haxe.Serializer;
 import haxe.rtti.Meta;
 import tink.remoting.Request;
+import tink.http.Response;
 using tink.CoreApi;
 using Reflect;
 
@@ -36,7 +37,15 @@ class Context {
 		});
 	}
 	
-	public function process(requestData:String):Surprise<String, Error> {
+	public function toResponse(result:ProcessResult):OutgoingResponse {
+		return switch result {
+			case None: new OutgoingResponse(new ResponseHeader(404, 'Not found', []), "");
+			case Finish(result): new OutgoingResponse(new ResponseHeader(200, 'OK', []), result);
+			case Fail(err): new OutgoingResponse(new ResponseHeader(err.code, err.message, []), '');
+		}
+	}
+	
+	function process(requestData:String):Surprise<String, Error> {
 		var u = new Unserializer(requestData);
 		var path = u.unserialize();
 		var args = u.unserialize();
