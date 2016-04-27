@@ -41,27 +41,24 @@ class Macro {
 	}
 	
 	static function processFunctions(fields:Array<Member>, processor:Processor) {
-		for(f in fields) {
-			if(f.name == 'new') continue;
-			switch f.getFunction() {
+		for(field in fields) {
+			if(field.name == 'new') continue;
+			switch field.getFunction() {
 				case Success(func):
-					if(func.ret == null) Context.error('Requires explicit return type', f.pos);
-					var type = func.ret.toType().sure();
-					switch type.getID() {
-						case 'tink.core.Future':
-							switch Context.follow(type) {
-								case TAbstract(_, [typeParam]):
-									if(typeParam.getID() == 'tink.core.Outcome')
-										processor.surprise(f.name, func, extractOutcome(typeParam));
-									else
-										processor.future(f.name, func, typeParam);
-								default:
-									throw "assert";
-							}
-						case 'tink.core.Outcome':
-							processor.outcome(f.name, func, extractOutcome(type));
-						default:
-							processor.other(f.name, func, type);
+					if(func.ret == null) Context.error('Requires explicit return type', field.pos);
+					
+					switch func.ret.toType().sure().reduce() {
+						case TAbstract(a, [TEnum(e, [s, f])]) if(a.toString() == 'tink.core.Future' && e.toString() == 'tink.core.Outcome'):
+							processor.surprise(field.name, func, new Pair(s, f));
+							
+						case TAbstract(a, [typeParam]) if(a.toString() == 'tink.core.Future'):
+							processor.future(field.name, func, typeParam);
+							
+						case TEnum(e, [s, f]) if(e.toString() == 'tink.core.Outcome'):
+							processor.outcome(field.name, func, new Pair(s, f));
+						
+						case type:
+							processor.other(field.name, func, type);
 					}
 				default:
 			}
