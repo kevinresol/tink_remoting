@@ -57,7 +57,7 @@ class Connection {
 	
 	static inline function serializeCall(path:String, params:Array<Dynamic>):String {
 		var s = new Serializer();
-		s.serialize(path.split('.'));
+		s.serialize(path);
 		s.serialize(params);
 		return s.toString();
 	}

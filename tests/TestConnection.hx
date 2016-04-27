@@ -21,21 +21,24 @@ class TestConnection extends TestCase {
 	
 	public function testSerializeCall() {
 		var s = Connection.serializeCall('Api.foo', [1,2]);
-		assertEquals('ay3:Apiy3:foohai1i2h', s);
+		assertEquals('y7:Api.fooai1i2h', s);
 	}
 	
 	public function testProcess() {
 		var s = Connection.serializeCall('Api.foo', [1,2]);
-		assertEquals('hxri3', ctx.process(s).sure());
+		ctx.process(s).handle(function(o) switch o {
+			case Success(data): assertEquals('hxri3', data);
+			case Failure(err): trace(err); fail("assert");
+		});
 	}
 	
 	public function testProcessRequest() {
 		var cnx = new Connection('host', 0, '/');
 		var req = cnx.prepareRequest('Api.foo', [1,2]).toIncomingRequest();
 		ctx.processRequest(req).handle(function(o) switch o {
-			case Success(None): fail("Context ignored the request unexpectedly");
-			case Success(Some(Success(data))): assertEquals('hxri3', data);
-			case Success(Some(Failure(err))) | Failure(err): fail(err.toString());
+			case None: fail("Context ignored the request unexpectedly");
+			case Finish(data): assertEquals('hxri3', data);
+			case Fail(err): fail(err.toString());
 		});
 	}
 	
