@@ -89,6 +89,7 @@ class Macro {
 	
 	static function buildServerApi() {
 		return ClassBuilder.run([
+			processFunctions.bind(_, ServerProcessor),
 			keepFunctions,
 		]);
 	}
@@ -103,16 +104,16 @@ class Macro {
 					
 					switch func.ret.toType().sure().reduce() {
 						case TAbstract(a, [TEnum(e, [s, f])]) if(a.toString() == 'tink.core.Future' && e.toString() == 'tink.core.Outcome'):
-							processor.surprise(field.name, func, new Pair(s, f));
+							processor.surprise(field, func, new Pair(s, f));
 							
 						case TAbstract(a, [typeParam]) if(a.toString() == 'tink.core.Future'):
-							processor.future(field.name, func, typeParam);
+							processor.future(field, func, typeParam);
 							
 						case TEnum(e, [s, f]) if(e.toString() == 'tink.core.Outcome'):
-							processor.outcome(field.name, func, new Pair(s, f));
+							processor.outcome(field, func, new Pair(s, f));
 						
 						case type:
-							processor.other(field.name, func, type);
+							processor.other(field, func, type);
 					}
 				default:
 			}
@@ -134,10 +135,10 @@ class Macro {
 
 typedef Processor = {
 	var className:String;
-	function future(name:String, func:Function, type:Type):Void;
-	function outcome(name:String, func:Function, type:Pair<Type, Type>):Void;
-	function surprise(name:String, func:Function, type:Pair<Type, Type>):Void;
-	function other(name:String, func:Function, type:Type):Void;
+	function future(field:Member, func:Function, type:Type):Void;
+	function outcome(field:Member, func:Function, type:Pair<Type, Type>):Void;
+	function surprise(field:Member, func:Function, type:Pair<Type, Type>):Void;
+	function other(field:Member, func:Function, type:Type):Void;
 }
 
 class ClientProcessor {
@@ -148,32 +149,51 @@ class ClientProcessor {
 		
 	}
 	
-	public function future(name:String, func:Function, type:Type) {
+	public function future(field:Member, func:Function, type:Type) {
 		var ct = type.toComplex();
 		func.ret = macro:tink.CoreApi.Surprise<$ct, tink.CoreApi.Error>;
-		buildClientBody(name, func);
+		buildClientBody(field.name, func);
 	}
 	
-	public function outcome(name:String, func:Function, type:Pair<Type, Type>) {
+	public function outcome(field:Member, func:Function, type:Pair<Type, Type>) {
 		var s = type.a.toComplex();
 		var f = type.b.toComplex();
 		func.ret = macro:tink.CoreApi.Surprise<$s, $f>;
-		buildClientBody(name, func);
+		buildClientBody(field.name, func);
 	}
 	
-	public function surprise(name:String, func:Function, type:Pair<Type, Type>) {
-		buildClientBody(name, func);
+	public function surprise(field:Member, func:Function, type:Pair<Type, Type>) {
+		buildClientBody(field.name, func);
 	}
 	
-	public function other(name:String, func:Function, type:Type) {
+	public function other(field:Member, func:Function, type:Type) {
 		var ct = type.toComplex();
 		func.ret = macro:tink.CoreApi.Surprise<$ct, tink.CoreApi.Error>;
-		buildClientBody(name, func);
+		buildClientBody(field.name, func);
 	}
 	
 	function buildClientBody(name:String, func:Function) {
 		var args = func.args.map(function(a) return macro $i{a.name});
 		func.expr = macro return cnx.call($v{className + '.' + name}, $a{args});
 	}
-
 }
+
+class ServerProcessor {
+	
+	public static var className:String;
+	
+	public static function future(field:Member, func:Function, type:Type) {
+		field.addMeta('async');
+	}
+	
+	public static function outcome(field:Member, func:Function, type:Pair<Type, Type>) {
+	}
+	
+	public static function surprise(field:Member, func:Function, type:Pair<Type, Type>) {
+		field.addMeta('async');
+	}
+	
+	public static function other(field:Member, func:Function, type:Type) {
+	}
+}
+

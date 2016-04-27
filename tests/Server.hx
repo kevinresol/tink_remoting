@@ -7,7 +7,12 @@ using tink.CoreApi;
 
 class Server {
 	static function main() {
-		var container = CgiContainer.instance;
+		var container = 
+			#if nodejs
+				new NodeContainer(8081);
+			#else
+				CgiContainer.instance;
+			#end
 		var ctx = new MyContext();
 		container.run({
 			done: Future.trigger(),
