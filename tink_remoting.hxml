@@ -1,4 +1,6 @@
 -cp ./tests/
 -main RunTests
 -lib tink_remoting
--neko bin/tests.n
+-js bin/index.js
+-D tink_remoting_client
+-dce full

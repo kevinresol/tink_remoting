@@ -34,7 +34,7 @@ class Connection {
 			#end 
 	}
 	
-	public function call(path:String, params:Array<Dynamic>):Surprise<Dynamic, Error> {
+	public function call<T>(path:String, params:Array<Dynamic>):Surprise<T, Error> {
 		var req = prepareRequest(path, params);
 		
 		return client.request(req) >>

@@ -8,7 +8,7 @@ class RunTests {
 		var r = new TestRunner();
 		r.add(new TestConnection());
 		if(r.run()) {
-			Sys.exit(500);
+			#if sys Sys.exit(500); #end
 		}
 	}
 }
