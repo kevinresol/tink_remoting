@@ -15,6 +15,7 @@ using TestConnection;
 @:access(tink.remoting.Context)
 class TestConnection extends BuddySuite {
 	
+	#if tink_remoting_server
 	var ctx:Context;
 	
 	public function new() {
@@ -83,4 +84,5 @@ class TestConnection extends BuddySuite {
 	static function toIncomingRequest(req:OutgoingRequest) {
 		return new IncomingRequest('fake_ip', new IncomingRequestHeader(req.header.method, req.header.uri, 'version', req.header.fields), req.body);
 	}
+	#end
 }

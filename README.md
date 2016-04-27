@@ -19,7 +19,7 @@ class MyContext extends tink.remoting.Context {
 
 class Server {
 	static function main() {
-		var container = CgiContainer.instance; // use a container of your choice
+		var container = new NodeContainer(8081); // use a container of your choice
 		var ctx = new MyContext();
 		container.run({
 			done: Future.trigger(),
@@ -31,7 +31,7 @@ class Server {
 
 class Client {
 	static function main() {
-		var ctx = new MyContext();
+		var ctx = new MyContext('localhost', 8081);
 		ctx.myApi.foo(1, 2).handle(function(o) switch(o) {
 			case Success(result): trace(result); // 3
 			case Failure(_):

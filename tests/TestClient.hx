@@ -13,10 +13,8 @@ using TestConnection;
 
 class TestClient extends BuddySuite {
 	
-	
-	
 	public function new() {
-		var ctx = new MyContext();
+		var ctx = new MyContext('localhost', 8081);
 		
 		describe("Test Client", {
 			it("should call remote function", function(done) {

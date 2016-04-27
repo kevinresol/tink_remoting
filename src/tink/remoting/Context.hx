@@ -18,11 +18,11 @@ class Context {
 	@:skip
 	var objects:Map<String, {obj:Dynamic, rec:Bool}>;
 	
-	public function new() {
+	public function new(#if tink_remoting_client host, port, ?path = '/' #end) {
 		objects = new Map();
 		
 		#if tink_remoting_client
-		cnx = new Connection('localhost', 8081);
+		cnx = new Connection(host, port, path);
 		#end
 	}
 	
