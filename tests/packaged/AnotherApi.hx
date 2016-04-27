@@ -1,8 +1,8 @@
-package;
+package packaged;
 
 using tink.CoreApi;
 
-class Api implements tink.remoting.Api {
+class AnotherApi implements tink.remoting.Api  {
 	public function new() {
 		
 	}

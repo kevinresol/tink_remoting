@@ -13,15 +13,24 @@ using TestConnection;
 
 class TestClient extends BuddySuite {
 	
-	var api = new Api();
+	
 	
 	public function new() {
-		
-		Client.connection = new Connection('localhost', 8081);
+		var ctx = new MyContext();
 		
 		describe("Test Client", {
 			it("should call remote function", function(done) {
-				api.foo(1, 2).handle(function(o) switch o {
+				ctx.api.foo(1, 2).handle(function(o) switch o {
+					case Success(result): 
+						result.should.be(3);
+						done();
+					case Failure(err): 
+						fail(err);
+				});
+			});
+			
+			it("should call remote function", function(done) {
+				ctx.api2.foo(1, 2).handle(function(o) switch o {
 					case Success(result): 
 						result.should.be(3);
 						done();

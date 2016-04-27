@@ -19,8 +19,7 @@ class TestConnection extends BuddySuite {
 	
 	public function new() {
 		super();
-		ctx = new Context();
-		ctx.addObject("Api", new Api());
+		ctx = new MyContext();
 		
 		describe("Test Connection", {
 			
@@ -40,9 +39,34 @@ class TestConnection extends BuddySuite {
 				});
 			});
 			
+			it("should process serialized string with packaged api", function(done) {
+				var s = Connection.serializeCall('packaged_AnotherApi.foo', [1,2]);
+				ctx.process(s).handle(function(o) switch o {
+					case Success(data): 
+						data.should.be('hxri3');
+						done();
+					case Failure(err): 
+						fail(err);
+				});
+			});
+			
 			it("should process an incoming request", function(done) {
 				var cnx = new Connection('host', 0, '/');
 				var req = cnx.prepareRequest('Api.foo', [1,2]).toIncomingRequest();
+				ctx.processRequest(req).handle(function(o) switch o {
+					case None:
+						fail("Context ignored the request unexpectedly");
+					case Finish(data): 
+						data.should.be('hxri3');
+						done();
+					case Fail(err): 
+						fail(err);
+				});
+			});
+			
+			it("should process an incoming request with packaged api", function(done) {
+				var cnx = new Connection('host', 0, '/');
+				var req = cnx.prepareRequest('packaged_AnotherApi.foo', [1,2]).toIncomingRequest();
 				ctx.processRequest(req).handle(function(o) switch o {
 					case None:
 						fail("Context ignored the request unexpectedly");

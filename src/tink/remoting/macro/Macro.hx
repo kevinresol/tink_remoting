@@ -5,58 +5,100 @@ import haxe.macro.Expr;
 import haxe.macro.Type;
 
 using tink.CoreApi;
+using StringTools;
+
 #if macro
 using tink.MacroApi;
 #end
 
 class Macro {
-	public static function build():Array<Field> {
+	
+	public static function buildContext():Array<Field> {
+		
+		var isClient = Context.defined('tink_remoting_client');
+		var isServer = Context.defined('tink_remoting_server');
+		
+		return ClassBuilder.run([
+			function(cb:ClassBuilder) {
+				
+				var ctor = cb.getConstructor();
+				var apis = [];
+				
+				for(member in cb) {
+					switch member.extractMeta(':skip') {
+						case Success(_): continue;
+						default:
+					}
+					switch member.getVar(true) {
+						case Success({type: ct}):
+							var name = ct.toType().sure().getID();
+							var tp = switch ct {
+								case TPath(tp): tp;
+								default: throw 'assert';
+							}
+							ctor.addStatement(macro $i{member.name} = new $tp());
+							if(isClient)
+								ctor.addStatement(macro @:privateAccess $i{member.name}.cnx = cnx);
+							else
+								apis.push({identifier: member.name, type: name.replace('.', '_')});
+						default:
+					}
+				}
+				
+				if(isServer) {
+					ctor.addStatement(macro init());
+					
+					cb.addMember({
+						name: 'init',
+						pos: Context.currentPos(),
+						kind: FFun({
+							args: [],
+							ret: null,
+							expr: macro $b{[for(api in apis)
+								macro addObject($v{api.type}, $i{api.identifier})
+							]}
+						}),
+					});
+				}
+			}
+		]);
+	}
+	
+	public static function buildApi():Array<Field> {
 		var isClient = Context.defined('tink_remoting_client');
 		var isServer = Context.defined('tink_remoting_server');
 		
 		if((isClient && isServer) || (!isClient && !isServer)) return null; // TODO: what should we do?
 		
-		return isClient ? buildClient() : buildServer();
+		return isClient ? buildClientApi() : buildServerApi();
 	}
 	
-	static function buildClient() {
-		var cl = Context.getLocalClass().get();
-		var fields:Array<Member> = Context.getBuildFields();
-		
-		// transform member functions
-		processFunctions(fields, new ClientProcessor(cl.name));
-		
-		// add the cnx field
-		fields.push({
-			name: 'cnx',
-			kind: FieldType.FProp('get', 'never', macro:tink.remoting.Connection, null),
-			pos: Context.currentPos(),
-		});
-		
-		// add the get_cnx field
-		fields.push({
-			name: 'get_cnx',
-			kind: FFun({
-				args: [],
-				expr: macro return tink.remoting.Client.connection,
-				ret: null,
-			}),
-			pos: Context.currentPos(),
-			access: [AInline],
-		});
-		
-		return fields;
+	static function buildClientApi() {
+		return ClassBuilder.run([
+			processFunctions.bind(_, new ClientProcessor()),
+			keepFunctions,
+			function(cb:ClassBuilder) {
+				cb.addMember({
+					name: 'cnx',
+					kind: FieldType.FVar(macro:tink.remoting.Connection, null),
+					pos: Context.currentPos(),
+				});
+			}
+		]);
 	}
 	
-	static function buildServer() {
-		return null;
+	static function buildServerApi() {
+		return ClassBuilder.run([
+			keepFunctions,
+		]);
 	}
 	
-	static function processFunctions(fields:Array<Member>, processor:Processor) {
-		for(field in fields) {
+	static function processFunctions(cb:ClassBuilder, processor:Processor) {
+		processor.className = (cb.target.pack.length == 0 ? '' : cb.target.pack.join('_') + '_') + cb.target.name;
+		for(field in cb) {
 			if(field.name == 'new') continue;
 			switch field.getFunction() {
-				case Success(func):
+				case Success(func) if(field.isPublic):
 					if(func.ret == null) Context.error('Requires explicit return type', field.pos);
 					
 					switch func.ret.toType().sure().reduce() {
@@ -76,9 +118,22 @@ class Macro {
 			}
 		}
 	}
+	
+	// add @:keep to all public functions
+	static function keepFunctions(cb:ClassBuilder) {
+		for(field in cb) {
+			if(field.name == 'new') continue;
+			switch field.kind {
+				case FFun(_) if(field.isPublic):
+					field.addMeta(':keep');
+				default:
+			}
+		}
+	}
 }
 
 typedef Processor = {
+	var className:String;
 	function future(name:String, func:Function, type:Type):Void;
 	function outcome(name:String, func:Function, type:Pair<Type, Type>):Void;
 	function surprise(name:String, func:Function, type:Pair<Type, Type>):Void;
@@ -87,10 +142,10 @@ typedef Processor = {
 
 class ClientProcessor {
 	
-	var cl:String;
+	public var className:String;
 	
-	public function new(cl:String) {
-		this.cl = cl;
+	public function new() {
+		
 	}
 	
 	public function future(name:String, func:Function, type:Type) {
@@ -118,7 +173,7 @@ class ClientProcessor {
 	
 	function buildClientBody(name:String, func:Function) {
 		var args = func.args.map(function(a) return macro $i{a.name});
-		func.expr = macro return cnx.call($v{cl + '.' + name}, $a{args});
+		func.expr = macro return cnx.call($v{className + '.' + name}, $a{args});
 	}
 
 }

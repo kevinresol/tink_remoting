@@ -1,6 +1,8 @@
 -cp ./tests/
 -main RunTests
 -lib tink_remoting
+-lib buddy
 -js bin/index.js
 -D tink_remoting_client
--dce full
+# -dce full
+-D dump

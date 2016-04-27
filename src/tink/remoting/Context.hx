@@ -8,11 +8,22 @@ import tink.http.Response;
 using tink.CoreApi;
 using Reflect;
 
+@:autoBuild(tink.remoting.macro.Macro.buildContext())
 class Context {
+	
+	#if tink_remoting_client
+		var cnx:Connection;
+	#end
+	
+	@:skip
 	var objects:Map<String, {obj:Dynamic, rec:Bool}>;
 	
 	public function new() {
 		objects = new Map();
+		
+		#if tink_remoting_client
+		cnx = new Connection('localhost', 8081);
+		#end
 	}
 	
 	public function addObject(name:String, obj:{}, rec:Bool = false) {
@@ -41,7 +52,7 @@ class Context {
 		return switch result {
 			case None: new OutgoingResponse(new ResponseHeader(404, 'Not found', []), "");
 			case Finish(result): new OutgoingResponse(new ResponseHeader(200, 'OK', []), result);
-			case Fail(err): new OutgoingResponse(new ResponseHeader(err.code, err.message, []), '');
+			case Fail(err): new OutgoingResponse(new ResponseHeader(err.code, err.message, []), err.toString());
 		}
 	}
 	

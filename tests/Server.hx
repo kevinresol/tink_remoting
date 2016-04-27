@@ -8,13 +8,10 @@ using tink.CoreApi;
 class Server {
 	static function main() {
 		var container = CgiContainer.instance;
-		var ctx = new Context();
-		ctx.addObject('Api', new Api());
+		var ctx = new MyContext();
 		container.run({
 			done: Future.trigger(),
-			serve: function(req) {
-				return ctx.processRequest(req) >> function(result) return ctx.toResponse(result);
-			},
+			serve: function(req) return ctx.processRequest(req) >> function(result) return ctx.toResponse(result),
 			onError: function(err) trace(err),
 		});
 	}

@@ -41,7 +41,7 @@ class Connection {
 			function(res:IncomingResponse)
 				return res.body.all() >> function(bytes:Bytes) {
 					var data = bytes.toString();
-					if(data.substr(0, 3) != 'hxr') return Failure(Error.withData(UnprocessableEntity, 'Invalid Response', data));
+					if(data.substr(0, 3) != 'hxr') return Failure(new Error(UnprocessableEntity, 'Invalid Response: "$data"'));
 					data = data.substr(3);
 					return Success(Unserializer.run(data));
 				}

@@ -21,19 +21,16 @@ install:
   - haxelib run travix install
 
 script:
-  - haxelib run travix interp -D tink_remoting_server
   - haxelib run travix neko -D tink_remoting_server
   - haxelib run travix python -D tink_remoting_server
   - haxelib run travix node -D tink_remoting_server
-  - haxelib run travix flash -D tink_remoting_server
   - haxelib run travix java -D tink_remoting_server
   - haxelib run travix cpp -D tink_remoting_server
   - haxelib run travix cs -D tink_remoting_server
   - haxelib run travix php -D tink_remoting_server
   - haxe server.hxml
   - nekotools server -d bin -h localhost -p 8081 &
-  - sleep 1
-  - haxelib run travix interp -D tink_remoting_client
+  - sleep 5
   - haxelib run travix neko -D tink_remoting_client
   - haxelib run travix python -D tink_remoting_client
   - haxelib run travix node -D tink_remoting_client
