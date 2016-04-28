@@ -1,6 +1,17 @@
 {
   "name": "tink_remoting",
+  "license": "MIT",
+  "tags": [
+    "tink",
+    "cross",
+    "remoting" 
+  ],
   "classPath": "./src",
+  "description": "Cross platform remoting in tink style",
+  "contributors": ["kevinresol"],
+  "releasenote": "Initial release",
+  "version": "0.1.0",
+  "url": "http://haxetink.org/tink_http",
   "dependencies": {
       "tink_http": "",
       "tink_macro": ""
