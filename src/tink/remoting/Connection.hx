@@ -43,7 +43,7 @@ class Connection {
 					var data = bytes.toString();
 					if(data.substr(0, 3) != 'hxr') return Failure(new Error(UnprocessableEntity, 'Invalid Response: "$data"'));
 					data = data.substr(3);
-					return Success(Unserializer.run(data));
+					return Unserializer.run(data);
 				}
 	}
 	

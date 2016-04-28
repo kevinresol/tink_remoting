@@ -18,4 +18,7 @@ class Api implements tink.remoting.Api {
 		
 	public function bar2(a:Int, b:Int):Outcome<Int, Error>
 		return Success(a + b);
+	
+	public function fail(a:Int, b:Int):Outcome<Int, Error>
+		return Failure(new Error("my error"));
 }

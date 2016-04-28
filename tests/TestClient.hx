@@ -71,6 +71,13 @@ class TestClient extends BuddySuite {
 					case Failure(err): fail(err);
 				});
 			});
+			
+			it("should get the remote error", function(done) {
+				ctx.api.fail(1, 2).handle(function(o) switch o {
+					case Success(result): fail('should not have result: $result');
+					case Failure(err): err.message.should.be('my error'); done();
+				});
+			});
 		});
 	}
 }

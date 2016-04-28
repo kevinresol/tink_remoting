@@ -37,10 +37,7 @@ class Context {
 		return request.getParams().flatMap(function(o) return switch(o) {
 			case Success(params):
 				if(params.exists('__x'))
-					process(params['__x']).map(function(o) return switch o {
-						case Success(result): Finish(result);
-						case Failure(err): Fail(err);
-					});
+					process(params['__x']).map(function(o) return Finish(o));
 				else
 					Future.sync(Fail(new Error(BadRequest, 'Missing "__x" parameter')));
 			case Failure(err):
@@ -56,12 +53,11 @@ class Context {
 		}
 	}
 	
-	function process(requestData:String):Surprise<String, Error> {
+	function process(requestData:String):Future<String> {
 		var u = new Unserializer(requestData);
 		var path = u.unserialize();
 		var args = u.unserialize();
-		return call(path, args) >>
-			function(result:Dynamic) return "hxr" + Serializer.run(result);
+		return call(path, args).map(function(o) return "hxr" + Serializer.run(o));
 	}
 	
 	function call(path:String, params:Array<Dynamic>):Surprise<Dynamic, Error> {
