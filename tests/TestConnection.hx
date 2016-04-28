@@ -30,23 +30,17 @@ class TestConnection extends BuddySuite {
 			
 			it("should process serialized string", function(done) {
 				var s = Connection.serializeCall('Api.foo', [1,2]);
-				ctx.process(s).handle(function(o) switch o {
-					case Success(data): 
-						data.should.be('hxri3');
-						done();
-					case Failure(err): 
-						fail(err);
+				ctx.process(s).handle(function(o) {
+					o.should.be('hxrwy17:tink.core.Outcomey7:Success:1i3');
+					done();
 				});
 			});
 			
 			it("should process serialized string with packaged api", function(done) {
 				var s = Connection.serializeCall('packaged_AnotherApi.foo', [1,2]);
-				ctx.process(s).handle(function(o) switch o {
-					case Success(data): 
-						data.should.be('hxri3');
-						done();
-					case Failure(err): 
-						fail(err);
+				ctx.process(s).handle(function(o) {
+					o.should.be('hxrwy17:tink.core.Outcomey7:Success:1i3');
+					done();
 				});
 			});
 			
@@ -57,7 +51,7 @@ class TestConnection extends BuddySuite {
 					case None:
 						fail("Context ignored the request unexpectedly");
 					case Finish(data): 
-						data.should.be('hxri3');
+						data.should.be('hxrwy17:tink.core.Outcomey7:Success:1i3');
 						done();
 					case Fail(err): 
 						fail(err);
@@ -71,7 +65,7 @@ class TestConnection extends BuddySuite {
 					case None:
 						fail("Context ignored the request unexpectedly");
 					case Finish(data): 
-						data.should.be('hxri3');
+						data.should.be('hxrwy17:tink.core.Outcomey7:Success:1i3');
 						done();
 					case Fail(err): 
 						fail(err);
