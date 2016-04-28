@@ -49,7 +49,7 @@ class Context {
 		return switch result {
 			case None: new OutgoingResponse(new ResponseHeader(404, 'Not found', []), "Missing x-tink-remoting header");
 			case Finish(result): new OutgoingResponse(new ResponseHeader(200, 'OK', []), result);
-			case Fail(err): new OutgoingResponse(new ResponseHeader(err.code, err.message, []), err.toString());
+			case Fail(err): new OutgoingResponse(new ResponseHeader(err.code, err.message, []), "hxr" + Serializer.run(Failure(err)));
 		}
 	}
 	
