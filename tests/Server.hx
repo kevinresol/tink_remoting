@@ -1,6 +1,7 @@
 package;
 
 import tink.http.Container;
+import tink.http.Response;
 import tink.remoting.Context;
 
 using tink.CoreApi;
@@ -16,7 +17,7 @@ class Server {
 		var ctx = new MyContext();
 		container.run({
 			done: Future.trigger(),
-			serve: function(req) return ctx.processRequest(req) >> function(result) return ctx.toResponse(result),
+			serve: function(req) return ctx.processRequest(req) >> function(result:ProcessResult):OutgoingResponse return result,
 			onError: function(err) trace(err),
 		});
 	}
