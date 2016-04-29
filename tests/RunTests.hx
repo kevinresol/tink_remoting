@@ -8,6 +8,6 @@ class RunTests implements Buddy<[
 	#end
 		
 	#if tink_remoting_server
-		TestConnection,
+		TestServer,
 	#end
 ]>{}

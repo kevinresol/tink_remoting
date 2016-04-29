@@ -1,17 +1,17 @@
-package tink.remoting;
+package tink.remoting.context;
 
 import haxe.Serializer;
 import haxe.Unserializer;
 import haxe.io.Bytes;
+import tink.http.Client;
 import tink.http.Request;
 import tink.http.Response;
 import tink.http.Header;
-import tink.http.Client;
-
 using tink.CoreApi;
 
-class Connection {
-	
+#if tink_remoting_client
+@:autoBuild(tink.remoting.macro.Macro.buildContext())
+class ClientContext {
 	var host:String;
 	var port:Int;
 	
@@ -62,3 +62,4 @@ class Connection {
 		return s.toString();
 	}
 }
+#end

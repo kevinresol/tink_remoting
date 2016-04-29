@@ -17,7 +17,7 @@ class Server {
 		var ctx = new MyContext();
 		container.run({
 			done: Future.trigger(),
-			serve: function(req) return ctx.processRequest(req) >> function(result:ProcessResult):OutgoingResponse return result,
+			serve: function(req) return ctx.processRequest(req),
 			onError: function(err) trace(err),
 		});
 	}

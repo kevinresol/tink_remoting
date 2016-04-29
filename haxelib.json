@@ -4,7 +4,7 @@
   "tags": [
     "tink",
     "cross",
-    "remoting" 
+    "remoting"
   ],
   "classPath": "./src",
   "description": "Cross platform remoting in tink style",

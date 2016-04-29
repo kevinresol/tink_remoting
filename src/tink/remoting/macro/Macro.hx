@@ -38,7 +38,7 @@ class Macro {
 							}
 							ctor.addStatement(macro $i{member.name} = new $tp());
 							if(isClient)
-								ctor.addStatement(macro @:privateAccess $i{member.name}.cnx = cnx);
+								ctor.addStatement(macro @:privateAccess $i{member.name}.ctx = this);
 							else
 								apis.push({identifier: member.name, type: name.replace('.', '_')});
 						default:
@@ -79,8 +79,8 @@ class Macro {
 			keepFunctions,
 			function(cb:ClassBuilder) {
 				cb.addMember({
-					name: 'cnx',
-					kind: FieldType.FVar(macro:tink.remoting.Connection, null),
+					name: 'ctx',
+					kind: FieldType.FVar(macro:tink.remoting.Context, null),
 					pos: Context.currentPos(),
 				});
 			}
@@ -174,7 +174,7 @@ class ClientProcessor {
 	
 	function buildClientBody(name:String, func:Function) {
 		var args = func.args.map(function(a) return macro $i{a.name});
-		func.expr = macro return cnx.call($v{className + '.' + name}, $a{args});
+		func.expr = macro return ctx.call($v{className + '.' + name}, $a{args});
 	}
 }
 

@@ -1,14 +1,11 @@
 package;
 
 import tink.remoting.Context;
-import tink.remoting.Connection;
-import tink.http.Request;
 
 import buddy.*;
 using buddy.Should;
 
 using tink.CoreApi;
-using TestConnection;
 
 class TestClient extends BuddySuite {
 	
@@ -16,6 +13,17 @@ class TestClient extends BuddySuite {
 		var ctx = new MyContext('localhost', 8081);
 		
 		describe("Test Client", {
+			
+			it("should serialize call", {
+				var s = @:privateAccess Context.serializeCall('Api.foo', [1,2]);
+				s.should.be('y7:Api.fooai1i2h');
+			});
+			
+			it("should serialize packaged call", {
+				var s = @:privateAccess Context.serializeCall('packaged_AnotherApi.foo', [1,2]);
+				s.should.be('y23:packaged_AnotherApi.fooai1i2h');
+			});
+			
 			it("should call remote function (int)", function(done) {
 				ctx.api.foo(1, 2).handle(function(o) switch o {
 					case Success(result): result.should.be(3); done();
