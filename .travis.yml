@@ -19,7 +19,7 @@ install:
   - haxelib install travix
   - haxelib install buddy
   - haxelib run travix install
-  - node -v
+  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then brew install node; fi # install lastest nodejs
 
 script:
   - haxelib run travix neko -D tink_remoting_server
