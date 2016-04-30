@@ -10,7 +10,7 @@ using tink.CoreApi;
 class TestClient extends BuddySuite {
 	
 	public function new() {
-		var ctx = new MyContext('localhost', 8081);
+		var ctx = new MyContext('localhost', 18081);
 		
 		describe("Test Client", {
 			

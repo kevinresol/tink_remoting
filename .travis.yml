@@ -29,7 +29,7 @@ script:
   - haxelib run travix cs -D tink_remoting_server
   - haxelib run travix php -D tink_remoting_server
   - haxe server.hxml
-  - nekotools server -d bin -h localhost -p 8081 > /dev/null &
+  - nekotools server -d bin -h localhost -p 18081 > /dev/null &
   - sleep 1
   # - haxelib run travix neko -D tink_remoting_client
   # - haxelib run travix python -D tink_remoting_client

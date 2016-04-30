@@ -25,10 +25,8 @@ class Macro {
 				var apis = [];
 				
 				for(member in cb) {
-					switch member.extractMeta(':skip') {
-						case Success(_): continue;
-						default:
-					}
+					if(member.extractMeta(':skip').isSuccess()) continue;
+					
 					switch member.getVar(true) {
 						case Success({type: ct}):
 							var name = ct.toType().sure().getID();
@@ -45,21 +43,10 @@ class Macro {
 					}
 				}
 				
-				if(isServer) {
-					ctor.addStatement(macro init());
-					
-					cb.addMember({
-						name: 'init',
-						pos: Context.currentPos(),
-						kind: FFun({
-							args: [],
-							ret: null,
-							expr: macro $b{[for(api in apis)
-								macro addObject($v{api.type}, $i{api.identifier})
-							]}
-						}),
-					});
-				}
+				if(isServer)
+					ctor.addStatement(macro $b{[for(api in apis)
+						macro addObject($v{api.type}, $i{api.identifier})
+					]});
 			}
 		]);
 	}
@@ -68,7 +55,7 @@ class Macro {
 		var isClient = Context.defined('tink_remoting_client');
 		var isServer = Context.defined('tink_remoting_server');
 		
-		if((isClient && isServer) || (!isClient && !isServer)) return null; // TODO: what should we do?
+		if((isClient && isServer) || (!isClient && !isServer)) ; // TODO: what should we do?
 		
 		return isClient ? buildClientApi() : buildServerApi();
 	}

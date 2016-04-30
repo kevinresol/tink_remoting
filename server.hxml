@@ -1,6 +1,11 @@
 -main Server
--js bin/server.js
 -cp tests
 -lib tink_remoting
--lib hxnodejs
 -D tink_remoting_server
+
+--each
+-lib hxnodejs
+-js bin/server.js
+
+--next
+-neko bin/index.n

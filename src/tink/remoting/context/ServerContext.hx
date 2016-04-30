@@ -5,6 +5,7 @@ import haxe.Serializer;
 import haxe.rtti.Meta;
 import tink.http.Response;
 import tink.http.Request;
+import tink.url.Query;
 
 using tink.CoreApi;
 using Reflect;
@@ -23,18 +24,24 @@ class ServerContext {
 		objects.set(name, {obj: obj, rec: rec});
 	}
 	
-	public function processRequest(request:Request):ProcessResult {
+	public function processRequest(request:IncomingRequest):ProcessResult {
 		
 		if(!request.header.byName('x-tink-remoting').isSuccess()) return Future.sync(None);
 		
-		return request.getParams().flatMap(function(o) return switch(o) {
-			case Success(params):
-				if(params.exists('__x'))
-					process(params['__x']).map(function(o) return Finish(o));
-				else
-					Future.sync(Fail(new Error(BadRequest, 'Missing "__x" parameter')));
+		return request.body.all().flatMap(function(o) switch o {
+			case Success(bytes):
+				var parser = (bytes.toString():Query).parse();
+				
+				while(parser.hasNext()) {
+					var param = parser.next();
+					if(param.name == '__x')
+						return process(param.value).map(function(o) return Finish(o));
+				}
+				
+				return Future.sync(Fail(new Error(BadRequest, 'Missing "__x" parameter')));
+					
 			case Failure(err):
-				Future.sync(Fail(err));
+				return Future.sync(Fail(err));
 		});
 	}
 	
@@ -81,10 +88,11 @@ class ServerContext {
 abstract ProcessResult(Future<ProcessResultImpl>) from Future<ProcessResultImpl> to Future<ProcessResultImpl> {
 	@:to
 	public inline function toResponse():Future<OutgoingResponse> {
+		inline function res(code, reason, body) return new OutgoingResponse(new ResponseHeader(code, reason, []), body);
 		return this >> function(o) return switch o {
-			case None: new OutgoingResponse(new ResponseHeader(404, 'Not found', []), "Missing x-tink-remoting header");
-			case Finish(result): new OutgoingResponse(new ResponseHeader(200, 'OK', []), result);
-			case Fail(err): new OutgoingResponse(new ResponseHeader(err.code, err.message, []), "hxr" + Serializer.run(Failure(err)));
+			case None: res(404, 'Not found', "Missing x-tink-remoting header");
+			case Finish(result): res(200, 'OK', result);
+			case Fail(err): res(err.code, err.message, "hxr" + Serializer.run(Failure(err)));
 		}
 	}
 }
