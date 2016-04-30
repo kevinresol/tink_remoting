@@ -70,7 +70,8 @@ class TestServer extends BuddySuite {
 					case None:
 						fail("Context ignored the request unexpectedly");
 					case Finish(data):
-						data.should.contain('messagey42:No%20such%20object%3A%20packaged_AnotherAp');
+						data.should.startWith('hxrwy17:tink.core.Outcomey7:Failure:1cy20:tink.core.TypedError');
+						data.should.contain('packaged_AnotherAp');
 						done();
 					case Fail(err):
 						fail(err);
