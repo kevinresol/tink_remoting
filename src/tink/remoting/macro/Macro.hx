@@ -18,6 +18,8 @@ class Macro {
 		var isClient = Context.defined('tink_remoting_client');
 		var isServer = Context.defined('tink_remoting_server');
 		
+		if((isClient && isServer) || (!isClient && !isServer)) throw 'Please define either "tink_remoting_client" or "tink_remoting_server"';
+		
 		return ClassBuilder.run([
 			function(cb:ClassBuilder) {
 				
@@ -55,7 +57,7 @@ class Macro {
 		var isClient = Context.defined('tink_remoting_client');
 		var isServer = Context.defined('tink_remoting_server');
 		
-		if((isClient && isServer) || (!isClient && !isServer)) ; // TODO: what should we do?
+		if((isClient && isServer) || (!isClient && !isServer)) throw 'Please define either "tink_remoting_client" or "tink_remoting_server"';
 		
 		return isClient ? buildClientApi() : buildServerApi();
 	}

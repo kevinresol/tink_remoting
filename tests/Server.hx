@@ -10,7 +10,7 @@ class Server {
 	static function main() {
 		var container = 
 			#if nodejs
-				new NodeContainer(8081);
+				new NodeContainer(18081);
 			#else
 				CgiContainer.instance;
 			#end
